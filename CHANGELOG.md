@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-12-26
+
+### Added
+- Cron sync script (`scripts/cron-sync.sh`) for daily lead synchronization
+- Deployed to Odoo container (230) with 6 AM daily schedule
+
+### Fixed
+- Pre-commit hooks now use system `python3` instead of hardcoded `python3.10`
+
 ## [0.7.0] - 2025-12-26
 
 ### Added
