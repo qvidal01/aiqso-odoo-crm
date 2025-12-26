@@ -320,8 +320,8 @@ class OdooLeadImporter:
         # Setup categories
         category_ids = self.setup_lead_list_categories(industry)
 
-        # Create lead list organization
-        umbrella_id, list_company_id = self.create_lead_list_company(list_name, category_ids)
+        # Create lead list organization (side effects only, IDs not needed)
+        _umbrella_id, _list_company_id = self.create_lead_list_company(list_name, category_ids)
 
         # Read and process CSV
         print("\n📥 Processing CSV file...")
