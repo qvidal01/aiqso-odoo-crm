@@ -108,10 +108,20 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system -e ".[dev]"
 
-      - name: Run tests
+      - name: Run tests with coverage
+        if: matrix.python-version == '3.11'
         run: |
-          if [ -d "tests" ]; then
-            pytest tests/ -v
-          else
-            echo "No tests directory found, skipping"
-          fi
+          pytest tests/ -v --cov=scripts --cov-report=xml --cov-report=term-missing
+
+      - name: Run tests
+        if: matrix.python-version != '3.11'
+        run: |
+          pytest tests/ -v
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
