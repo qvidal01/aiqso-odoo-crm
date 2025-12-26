@@ -1,0 +1,113 @@
+[project]
+name = "aiqso-odoo-crm"
+version = "0.2.0"
+description = "Utility scripts for importing and syncing lead data into Odoo 17 CRM via XML-RPC"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "AIQSO", email = "quinn@aiqso.io" }]
+keywords = ["odoo", "crm", "automation", "leads"]
+
+dependencies = [
+    "psycopg2-binary>=2.9,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+    "pytest>=8.0.0",
+    "types-psycopg2>=2.9.21",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
+
+# ============================================================================
+# Ruff Configuration
+# ============================================================================
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "S",      # flake8-bandit (security)
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "S101",   # use of assert (acceptable in scripts)
+    "B008",   # function call in default arg (argparse pattern)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = [
+    "S603",   # subprocess untrusted input (scripts are CLI tools)
+    "S607",   # partial executable path (acceptable in scripts)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# ============================================================================
+# MyPy Configuration
+# ============================================================================
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = false
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+ignore_missing_imports = true
+show_error_codes = true
+pretty = true
+# Disable strict checks for scripts that work correctly at runtime
+strict_optional = false
+warn_unreachable = false
+disable_error_code = ["union-attr", "var-annotated", "index", "attr-defined", "str-bytes-safe", "operator"]
+
+[[tool.mypy.overrides]]
+module = "psycopg2.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "xmlrpc.*"
+ignore_missing_imports = true
+
+# ============================================================================
+# Pytest Configuration
+# ============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
