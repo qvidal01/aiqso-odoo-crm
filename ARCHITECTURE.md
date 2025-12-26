@@ -50,4 +50,3 @@ All scripts prefer environment variables for credentials. See `docs/CONFIGURATIO
 - The Odoo user has permissions to read/write:
   - `res.partner`, `res.partner.category`, `crm.lead`
 - PostgreSQL is reachable from the machine running sync jobs.
-

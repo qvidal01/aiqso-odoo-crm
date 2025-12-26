@@ -29,4 +29,3 @@ Recommendation if this repo grows:
 
 - Add `pytest` with unit tests for CSV parsing/mapping and for config validation behavior.
 - Add a small mocked XML-RPC adapter layer so Odoo calls can be tested without a live server.
-

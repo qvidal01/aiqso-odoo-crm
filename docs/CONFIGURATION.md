@@ -43,4 +43,3 @@ cp .env.example .env
 set -a; source .env; set +a
 python3 scripts/import_lead_list.py /path/to/leads.csv --industry "Construction"
 ```
-
