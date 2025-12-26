@@ -14,16 +14,39 @@ Utility scripts for importing and syncing lead data into an Odoo 17 CRM instance
 
 ### Quick start
 
-1. Create a venv and install deps:
-   - `python3 -m venv venv`
-   - `./venv/bin/pip install -r requirements.txt`
+1. Setup environment:
+   ```bash
+   make dev                    # Creates venv, installs deps, sets up pre-commit
+   ```
 2. Create `.env` from `.env.example` and load it:
-   - `cp .env.example .env`
-   - `set -a; source .env; set +a`
+   ```bash
+   cp .env.example .env
+   set -a; source .env; set +a
+   ```
 3. Run an import:
-   - `python3 scripts/import_lead_list.py /path/to/leads.csv --industry "Construction"`
+   ```bash
+   python3 scripts/import_lead_list.py /path/to/leads.csv --industry "Construction"
+   ```
 
 See `docs/CONFIGURATION.md` for configuration details.
+
+### Development
+
+```bash
+make help          # Show all available commands
+
+# Code quality
+make check         # Run lint + format + typecheck
+make lint-fix      # Auto-fix linting issues
+make format-fix    # Auto-format code
+
+# Testing
+make test          # Run tests
+make coverage      # Run tests with coverage report
+
+# CI
+make ci            # Run full CI pipeline locally
+```
 
 ### Additional docs
 
