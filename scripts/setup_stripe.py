@@ -12,6 +12,7 @@ Usage:
 import os
 import sys
 import xmlrpc.client
+from typing import Any, cast
 
 from config import get_odoo_connection
 
@@ -45,17 +46,20 @@ def setup_stripe(stripe_secret_key: str, stripe_publishable_key: str) -> int:
     if not provider_ids:
         raise ValueError("Stripe provider module not installed. " "Install 'payment_stripe' module in Odoo first.")
 
-    provider_id = provider_ids[0]
+    provider_id = cast(int, provider_ids[0])
 
     # Check current state
-    current = models.execute_kw(
-        db,
-        uid,
-        password,
-        "payment.provider",
-        "read",
-        [provider_ids],
-        {"fields": ["state", "name"]},
+    current = cast(
+        list[dict[str, Any]],
+        models.execute_kw(
+            db,
+            uid,
+            password,
+            "payment.provider",
+            "read",
+            [provider_ids],
+            {"fields": ["state", "name"]},
+        ),
     )
 
     if current and current[0].get("state") == "enabled":

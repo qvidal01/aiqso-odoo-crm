@@ -37,5 +37,6 @@ repos:
         args: [--ignore-missing-imports, --no-error-summary]
         additional_dependencies:
           - types-psycopg2>=2.9.21
+          - types-requests>=2.31.0
         # Make non-blocking initially; remove 'verbose' and add strict checks when ready
         verbose: true

@@ -13,6 +13,7 @@ Endpoints:
 import os
 import xmlrpc.client
 from datetime import datetime
+from typing import cast
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,9 +51,10 @@ class OdooConnection:
         """Authenticate and return user ID."""
         if self._uid is None:
             common = xmlrpc.client.ServerProxy(f"{ODOO_URL}/xmlrpc/2/common", allow_none=True)
-            self._uid = common.authenticate(ODOO_DB, ODOO_USERNAME, ODOO_API_KEY, {})
-            if not self._uid:
+            result = common.authenticate(ODOO_DB, ODOO_USERNAME, ODOO_API_KEY, {})
+            if not result:
                 raise HTTPException(status_code=500, detail="Odoo authentication failed")
+            self._uid = cast(int, result)
         return self._uid
 
     @property
@@ -230,7 +232,7 @@ async def create_invoice(request: CreateInvoiceRequest, odoo: OdooConnection = D
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/api/mark_invoice_paid", response_model=MarkPaidResponse)
@@ -341,7 +343,7 @@ async def mark_invoice_paid(request: MarkPaidRequest, odoo: OdooConnection = Dep
         )
 
         if invoice_lines and payment_lines:
-            line_ids = [l["id"] for l in invoice_lines + payment_lines]
+            line_ids = [line["id"] for line in invoice_lines + payment_lines]
             try:
                 odoo.execute("account.move.line", "reconcile", line_ids)
             except xmlrpc.client.Fault:
@@ -357,7 +359,7 @@ async def mark_invoice_paid(request: MarkPaidRequest, odoo: OdooConnection = Dep
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/invoices/{invoice_id}", response_model=InvoiceResponse)
@@ -404,7 +406,7 @@ async def get_invoice(invoice_id: int, odoo: OdooConnection = Depends(get_odoo))
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/invoices/by-stripe/{stripe_session_id}", response_model=InvoiceResponse)
@@ -451,10 +453,10 @@ async def get_invoice_by_stripe(stripe_session_id: str, odoo: OdooConnection = D
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8070)
+    uvicorn.run(app, host="0.0.0.0", port=8070)  # noqa: S104

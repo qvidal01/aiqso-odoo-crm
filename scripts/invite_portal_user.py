@@ -13,6 +13,7 @@ Example:
 
 import sys
 import xmlrpc.client
+from typing import cast
 
 from config import get_odoo_connection
 
@@ -38,7 +39,7 @@ def find_partner_by_email(email: str) -> int | None:
         [[["email", "=", email]]],
     )
 
-    return partner_ids[0] if partner_ids else None
+    return cast(int, partner_ids[0]) if partner_ids else None
 
 
 def create_partner(email: str, name: str, company: str | None = None) -> int:
@@ -73,7 +74,7 @@ def create_partner(email: str, name: str, company: str | None = None) -> int:
         [partner_data],
     )
 
-    return partner_id
+    return cast(int, partner_id)
 
 
 def invite_to_portal(partner_id: int) -> bool:

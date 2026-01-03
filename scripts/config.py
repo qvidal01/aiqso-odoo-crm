@@ -1,8 +1,8 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 
-def _getenv(name: str, default=None):
+def _getenv(name: str, default: Any = None) -> Any:
     value = os.environ.get(name)
     if value is None or value == "":
         return default
@@ -89,4 +89,4 @@ def get_odoo_connection() -> tuple[str, str, int, str]:
     if not uid:
         raise SystemExit("Odoo authentication failed. Check your credentials.")
 
-    return (url, db, uid, api_key)
+    return (url, db, cast(int, uid), api_key)

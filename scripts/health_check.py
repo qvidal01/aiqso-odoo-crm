@@ -37,8 +37,9 @@ def check_odoo() -> bool:
 
         common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
         version = common.version()
+        version_info = version if isinstance(version, dict) else {}
 
-        print(f"  [OK] Odoo {version['server_version']} responding at {url}")
+        print(f"  [OK] Odoo {version_info.get('server_version', 'unknown')} responding at {url}")
         return True
     except Exception as e:
         print(f"  [FAIL] Odoo check failed: {e}")
@@ -93,7 +94,7 @@ def check_stripe() -> bool:
         uid = common.authenticate(db, username, api_key, {})
         models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
 
-        providers = models.execute_kw(
+        providers_result = models.execute_kw(
             db,
             uid,
             api_key,
@@ -102,6 +103,7 @@ def check_stripe() -> bool:
             [[["code", "=", "stripe"]]],
             {"fields": ["state", "name"]},
         )
+        providers = providers_result if isinstance(providers_result, list) else []
 
         if providers and providers[0]["state"] == "enabled":
             print("  [OK] Stripe payment provider enabled")

@@ -10,6 +10,7 @@ Usage:
 
 import sys
 import xmlrpc.client
+from typing import Any, cast
 
 from config import get_odoo_connection
 
@@ -86,8 +87,9 @@ def create_products() -> list[int]:
     url, db, uid, password = get_odoo_connection()
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
 
-    created = []
-    skipped = []
+    created: list[int] = []
+    skipped: list[str] = []
+    product: dict[str, Any]
 
     for product in PRODUCTS:
         # Check if exists by default_code
@@ -101,7 +103,7 @@ def create_products() -> list[int]:
         )
 
         if existing:
-            skipped.append(product["name"])
+            skipped.append(str(product["name"]))
             print(f"  [skip] {product['name']} (already exists)")
             continue
 
@@ -113,13 +115,13 @@ def create_products() -> list[int]:
             "create",
             [product],
         )
-        created.append(product_id)
+        created.append(cast(int, product_id))
         print(f"  [new]  {product['name']} (ID: {product_id})")
 
     return created
 
 
-def list_products() -> list[dict]:
+def list_products() -> list[dict[str, Any]]:
     """List all AIQSO products in Odoo.
 
     Returns:
@@ -128,35 +130,41 @@ def list_products() -> list[dict]:
     url, db, uid, password = get_odoo_connection()
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
 
-    products = models.execute_kw(
-        db,
-        uid,
-        password,
-        "product.template",
-        "search_read",
-        [[["default_code", "like", "LEAD-%"]]],
-        {"fields": ["name", "default_code", "list_price", "type"]},
+    products = cast(
+        list[dict[str, Any]],
+        models.execute_kw(
+            db,
+            uid,
+            password,
+            "product.template",
+            "search_read",
+            [[["default_code", "like", "LEAD-%"]]],
+            {"fields": ["name", "default_code", "list_price", "type"]},
+        ),
     )
 
     # Also get other AIQSO products
-    other_products = models.execute_kw(
-        db,
-        uid,
-        password,
-        "product.template",
-        "search_read",
-        [
+    other_products = cast(
+        list[dict[str, Any]],
+        models.execute_kw(
+            db,
+            uid,
+            password,
+            "product.template",
+            "search_read",
             [
-                "|",
-                "|",
-                "|",
-                ["default_code", "=", "CONSULT-AI"],
-                ["default_code", "=", "SEO-AUDIT"],
-                ["default_code", "=", "DEV-WORKFLOW"],
-                ["default_code", "=", "SUPPORT-ENT"],
-            ]
-        ],
-        {"fields": ["name", "default_code", "list_price", "type"]},
+                [
+                    "|",
+                    "|",
+                    "|",
+                    ["default_code", "=", "CONSULT-AI"],
+                    ["default_code", "=", "SEO-AUDIT"],
+                    ["default_code", "=", "DEV-WORKFLOW"],
+                    ["default_code", "=", "SUPPORT-ENT"],
+                ]
+            ],
+            {"fields": ["name", "default_code", "list_price", "type"]},
+        ),
     )
 
     return products + other_products
