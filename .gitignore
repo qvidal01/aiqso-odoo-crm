@@ -69,3 +69,6 @@ logs/
 
 # Local development
 .claude/
+
+# MkDocs build
+site/
